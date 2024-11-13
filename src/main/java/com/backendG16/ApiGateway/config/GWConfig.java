@@ -8,11 +8,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class GWConfig {
+
+    @Value("${api.uri.alquiler}")
+    private String uriAlquiler;
+
     @Bean
-    public RouteLocator configurarRutas(
-            RouteLocatorBuilder builder,
-            @Value("http://localhost:8080") String uriAlquiler)
-    {
+    public RouteLocator configurarRutas(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(p -> p.path("/api/pruebas/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/vehiculos/**").uri(uriAlquiler))
