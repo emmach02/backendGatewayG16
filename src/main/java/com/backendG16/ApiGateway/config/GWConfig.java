@@ -15,7 +15,6 @@ public class GWConfig {
     @Bean
     public RouteLocator configurarRutas(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route(p -> p.path("/api/pruebas/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/vehiculos/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/empleados/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/marcas/**").uri(uriAlquiler))
