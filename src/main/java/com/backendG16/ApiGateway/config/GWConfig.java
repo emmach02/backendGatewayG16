@@ -35,23 +35,29 @@ public class GWConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
+    public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
         http.authorizeExchange(exchanges -> exchanges
-                        // Esta ruta puede ser accedida por cualquiera, sin autorización
-                        .pathMatchers("/api/vehiculos/**")
-                        .permitAll()
+                        // Solo empleados pueden crear pruebas y mandar notificaciones
+                        .pathMatchers("/api/pruebas/crear", "/api/notificaciones/enviar")
+                        .hasAnyRole("EMPLEADO", "ADMIN")
 
-                        .pathMatchers("/api/empleados/**")
-                        .hasAnyRole("ADMIN", "EMPLEADO")
+                        // Solo usuarios asociados a un vehículo pueden enviar posiciones
+                        .pathMatchers("/api/posiciones/enviar")
+                        .hasAnyRole("VEHICULO", "ADMIN") // Usa un rol o autoridad específica para usuarios de vehículos
 
-                        // Cualquier otra petición...
+                        // Solo administradores pueden ver los reportes
+                        .pathMatchers("/api/reportes/**")
+                        .hasRole("ADMIN")
+
+                        // Cualquier otra petición debe estar autenticada
                         .anyExchange()
                         .authenticated()
-
-                ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .csrf(csrf -> csrf.disable());
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .csrf(csrf -> csrf.disable()); // Desactiva CSRF si no es necesario para tu caso
         return http.build();
     }
+
 
     @Bean
     public ReactiveJwtAuthenticationConverter jwtAuthenticationConverter() {
