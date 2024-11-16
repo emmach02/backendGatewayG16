@@ -35,7 +35,7 @@ public class GWConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
         http.authorizeExchange(exchanges -> exchanges
                         // Solo empleados pueden crear pruebas y mandar notificaciones
                         .pathMatchers("/api/pruebas/crear", "/api/notificaciones/enviar")
@@ -50,14 +50,17 @@ public class GWConfig {
                         .hasRole("ADMIN")
 
                         // Cualquier otra petición debe estar autenticada
+                        .pathMatchers("/api/notificaciones/**")
+                        .permitAll()
+
+                        // Cualquier otra petición...
                         .anyExchange()
                         .authenticated()
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .csrf(csrf -> csrf.disable()); // Desactiva CSRF si no es necesario para tu caso
+
+                ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .csrf(csrf -> csrf.disable());
         return http.build();
     }
-
 
     @Bean
     public ReactiveJwtAuthenticationConverter jwtAuthenticationConverter() {
