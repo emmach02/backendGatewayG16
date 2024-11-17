@@ -23,14 +23,17 @@ public class GWConfig {
 
     @Bean
     public RouteLocator configurarRutas(RouteLocatorBuilder builder,
-                                        @Value("${api.uri.alquiler}") String uriAlquiler) {
+                                        @Value("${api.uri.alquiler}") String uriAlquiler,
+                                        @Value("${api.uri.notificaciones}") String uriNotificaciones) {
         return builder.routes()
                 .route(p -> p.path("/api/vehiculos/**").uri(uriAlquiler))
+                .route(p -> p.path("/api/pruebas/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/empleados/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/marcas/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/modelos/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/posiciones/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/interesados/**").uri(uriAlquiler))
+                .route(p -> p.path("/api/notificaciones/**").uri(uriNotificaciones))
                 .build();
     }
 
@@ -38,25 +41,25 @@ public class GWConfig {
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
         http.authorizeExchange(exchanges -> exchanges
                         // Solo empleados pueden crear pruebas y mandar notificaciones
-                        .pathMatchers("/api/pruebas/crear", "/api/notificaciones/enviar")
+                        .pathMatchers("/api/pruebas/**")
+                        //.permitAll()
                         .hasAnyRole("EMPLEADO", "ADMIN")
 
                         // Solo usuarios asociados a un vehículo pueden enviar posiciones
-                        .pathMatchers("/api/posiciones/enviar")
+                        .pathMatchers("/api/posiciones/crearPosicion")
                         .hasAnyRole("VEHICULO", "ADMIN") // Usa un rol o autoridad específica para usuarios de vehículos
 
                         // Solo administradores pueden ver los reportes
                         .pathMatchers("/api/reportes/**")
                         .hasRole("ADMIN")
 
-                        // Cualquier otra petición debe estar autenticada
+                        // Notificaciones sin necesidad de ser autenticadas
                         .pathMatchers("/api/notificaciones/**")
                         .permitAll()
 
                         // Cualquier otra petición...
                         .anyExchange()
                         .authenticated()
-
                 ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .csrf(csrf -> csrf.disable());
         return http.build();
