@@ -33,6 +33,7 @@ public class GWConfig {
                 .route(p -> p.path("/api/modelos/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/posiciones/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/interesados/**").uri(uriAlquiler))
+                .route(p -> p.path("/api/reportes/**").uri(uriAlquiler))
                 .route(p -> p.path("/api/notificaciones/**").uri(uriNotificaciones))
                 .build();
     }
